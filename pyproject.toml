@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "numpy"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ctseval"
+version = "0.1.0"
+description = "A package for evaluating clinical time series predictions"
+readme = "README.md"
+authors = [{name = "Michael Gao", email = "michaelgao8@gmail.com"}]
+license = {file = "LICENSE"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+keywords = ["clinical", "time series", "evaluation"]
+dependencies = [
+    "numpy",
+    "pandas",
+]
+requires-python = ">=3.6"
+
+[project.urls]
+Homepage = "https://github.com/michaelgao8/ctseval"

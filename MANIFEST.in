@@ -1,0 +1,6 @@
+include README.md
+include ctseval/include/*.h
+include ctseval/*.c
+include ctseval/__init__.py
+include ctseval/utils.py
+include ctseval/ctseval.py
