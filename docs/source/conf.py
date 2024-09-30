@@ -23,7 +23,7 @@ exclude_patterns = []
 
 # -- Options for HTML output -------------------------------------------------
 html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
+html_static_path = []
 
 # -- autodoc configuration ---------------------------------------------------
 autodoc_default_options = {
