@@ -127,42 +127,40 @@ def precision_recall_curve(metrics: List[Dict]) -> Tuple[List[float], List[float
     Returns:
         A tuple containing two lists: recalls and precisions.
     """
-    xs = []
-    ys = []
+    recalls = []
+    precisions = []
     total_positive_episodes = metrics[-1]['episode_tp'] + metrics[-1]['episode_fn']
     
     for m in metrics:
         curr_prec = _precision(m)
         if curr_prec is not None:
             curr_recall = _recall(m, total_positive_episodes)
-            xs.append(curr_recall)
-            ys.append(curr_prec)
-    return xs, ys
+            recalls.append(curr_recall)
+            precisions.append(curr_prec)
+    return recalls, precisions
 
 def recall_at_fixed_precision(metrics: List[Dict], target_precision: float) -> float:
     """
-    Find the closest recall value at the specified precision.
+    Find the largest recall value at or above the specified precision.
 
     Args:
         metrics: List of dictionaries containing 'episode_tp', 'episode_fp', 'episode_fn', and 'prediction_tp'.
-        target_precision: The precision value to find the closest recall for.
+        target_precision: The minimum precision value to consider.
     Returns:
-        The recall value closest to the specified precision, or None if not found.
+        The largest recall value at or above the specified precision, or None if not found.
     """
     total_positive_episodes = metrics[-1]['episode_tp'] + metrics[-1]['episode_fn']
 
-    closest_recall = None
-    smallest_diff = float('inf')
+    max_recall = None
 
     for m in metrics:
         curr_prec = _precision(m)
-        if curr_prec is not None:
-            diff = abs(curr_prec - target_precision)
-            if diff < smallest_diff:
-                smallest_diff = diff
-                closest_recall = _recall(m, total_positive_episodes)
-
-    return closest_recall
+        curr_recall = _recall(m, total_positive_episodes)
+        
+        if curr_prec is not None and curr_prec >= target_precision:
+            if max_recall is None or curr_recall > max_recall:
+                max_recall = curr_recall
+    return max_recall
 
 def precision_at_fixed_recall(metrics: List[Dict], target_recall: float) -> float:
     """
