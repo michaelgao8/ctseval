@@ -345,14 +345,29 @@ int compute_metrics(PyObject *trajectories_obj, double snooze_window, double det
         double cpu_time_used;
         start = clock();
 
-        int print_interval = risk_scores_count / 10;  // Print 10 updates
+        // Calculate total unique risk thresholds
+        int total_unique_thresholds = 0;
+        if (risk_scores_count > 0) {
+            total_unique_thresholds = 1;
+            for (int i = 1; i < risk_scores_count; i++) {
+                if (risk_scores[i] != risk_scores[i-1]) {
+                    total_unique_thresholds++;
+                }
+            }
+        }
+
+        int print_interval = risk_scores_count / 10;  // Print 10 updates based on overall risk score processing
+        if (print_interval == 0 && risk_scores_count > 0) print_interval = 1; // Ensure printing if count < 10
+
         double previous_threshold = -1.0;  // Initialize with an impossible threshold value
+        int processed_unique_thresholds = 0;
 
         for (int t = 0; t < risk_scores_count; t++) {
             double threshold = risk_scores[t];
 
             // Only process and append results if the threshold is different from the previous one
             if (threshold != previous_threshold) {
+                processed_unique_thresholds++;
                 int episode_tp = 0;
                 int episode_fp = 0;
                 int episode_fn = 0;
@@ -403,14 +418,24 @@ int compute_metrics(PyObject *trajectories_obj, double snooze_window, double det
             }
 
             // Print progress and time estimation
-            if (t > 0 && t % print_interval == 0) {
+            if (t > 0 && print_interval > 0 && t % print_interval == 0) { // ensure print_interval is not 0
                 current = clock();
                 cpu_time_used = ((double) (current - start)) / CLOCKS_PER_SEC;
-                double progress = (double)(t + 1) / risk_scores_count;
-                double estimated_total_time = cpu_time_used / progress;
-                double estimated_remaining = estimated_total_time - cpu_time_used;
-                printf("Processed %d of %d risk scores (%.1f%%). Estimated time remaining: %.2f seconds\n", 
-                       t + 1, risk_scores_count, progress * 100, estimated_remaining);
+                if (total_unique_thresholds > 0 && processed_unique_thresholds > 0) {
+                    double progress = (double)processed_unique_thresholds / total_unique_thresholds;
+                    double estimated_total_time = cpu_time_used / progress;
+                    double estimated_remaining = estimated_total_time - cpu_time_used;
+                    printf("Processed %d/%d risk scores (%d/%d unique thresholds, %.1f%%). Estimated time remaining: %.2f seconds\n",
+                           t + 1, risk_scores_count,
+                           processed_unique_thresholds, total_unique_thresholds,
+                           progress * 100, estimated_remaining);
+                } else if (risk_scores_count > 0) { // Fallback if no unique thresholds processed yet, but t is advancing
+                    double progress_t = (double)(t + 1) / risk_scores_count;
+                    double estimated_total_time_t = cpu_time_used / progress_t;
+                    double estimated_remaining_t = estimated_total_time_t - cpu_time_used;
+                     printf("Processed %d/%d risk scores (%.1f%% initial). Estimated time remaining: %.2f seconds\n",
+                           t + 1, risk_scores_count, progress_t * 100, estimated_remaining_t);
+                }
             }
         }
 
