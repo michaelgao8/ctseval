@@ -98,3 +98,30 @@ def test_validate_trajectories_schema_invalid_event_time():
     ]
     with pytest.raises(ValueError, match="The 'event_time' key must be a number"):
         ctseval.validate_trajectories_schema(invalid_trajectories)
+
+def test_compute_metrics_integer_predictions(benchmark_20):
+    # Modify a trajectory to have integer predictions
+    modified_trajectory = benchmark_20[0].copy()
+    modified_trajectory["predicted_times"] = [1, 2, 3]
+    modified_trajectory["predicted_risks"] = [0, 1, 0]
+
+    result = ctseval.compute_metrics([modified_trajectory], snooze_window=0, detection_window=12)
+    assert result is not None
+
+def test_compute_metrics_float_predictions(benchmark_20):
+    # Ensure a trajectory has float predictions (original benchmark data might already be float)
+    modified_trajectory = benchmark_20[0].copy()
+    modified_trajectory["predicted_times"] = [1.0, 2.0, 3.0]
+    modified_trajectory["predicted_risks"] = [0.0, 1.0, 0.0]
+
+    result = ctseval.compute_metrics([modified_trajectory], snooze_window=0, detection_window=12)
+    assert result is not None
+
+def test_compute_metrics_mixed_predictions(benchmark_20):
+    # Modify a trajectory to have mixed integer and float predictions
+    modified_trajectory = benchmark_20[0].copy()
+    modified_trajectory["predicted_times"] = [1, 2.0, 3]
+    modified_trajectory["predicted_risks"] = [0.0, 1, 0.0]
+
+    result = ctseval.compute_metrics([modified_trajectory], snooze_window=0, detection_window=12)
+    assert result is not None
