@@ -418,6 +418,7 @@ int compute_metrics(PyObject *trajectories_obj, double snooze_window, double det
             }
 
             // Print progress and time estimation
+
             if (t > 0 && print_interval > 0 && t % print_interval == 0) { // ensure print_interval is not 0
                 current = clock();
                 cpu_time_used = ((double) (current - start)) / CLOCKS_PER_SEC;

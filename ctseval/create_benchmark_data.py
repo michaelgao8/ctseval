@@ -34,11 +34,15 @@ if __name__ == '__main__':
     trajectory_df = pd.concat(trajectory_dfs)
     traj_list = convert_df_to_trajectory_list(trajectory_df, 'id', 'event_occurred', 'event_time', 'predicted_times', 'predicted_risks')
 
-    with open("../benchmark_data/benchmark_trajectories_200.json", "w") as f:
+    import os
+    # Create the benchmark_data directory if it doesn't exist
+    os.makedirs("benchmark_data", exist_ok=True)
+
+    with open("benchmark_data/benchmark_trajectories_200.json", "w") as f:
         json.dump(traj_list[0:200], f, indent=2)
 
-    with open("../benchmark_data/benchmark_trajectories_2000.json", "w") as f:
+    with open("benchmark_data/benchmark_trajectories_2000.json", "w") as f:
         json.dump(traj_list[0:2000], f, indent=2)
         
-    with open("../benchmark_data/benchmark_trajectories_20000.json", "w") as f:
+    with open("benchmark_data/benchmark_trajectories_20000.json", "w") as f:
         json.dump(traj_list, f, indent=2)
